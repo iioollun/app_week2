@@ -8,17 +8,25 @@
 
 import UIKit
 import MBProgressHUD
+import AFNetworking
 
 // Main ViewController
 class RepoResultsViewController: UIViewController {
 
+    @IBOutlet weak var githubTableView: UITableView!
+    
     var searchBar: UISearchBar!
     var searchSettings = GithubRepoSearchSettings()
 
-    var repos: [GithubRepo]!
+    var repos = [GithubRepo]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.githubTableView.delegate = self
+        self.githubTableView.dataSource = self
+        self.githubTableView.rowHeight = UITableViewAutomaticDimension
+        self.githubTableView.estimatedRowHeight = 100
 
         // Initialize the UISearchBar
         searchBar = UISearchBar()
@@ -41,14 +49,39 @@ class RepoResultsViewController: UIViewController {
         GithubRepo.fetchRepos(searchSettings, successCallback: { (newRepos) -> Void in
 
             // Print the returned repositories to the output window
-            for repo in newRepos {
-                print(repo)
-            }   
+//            for repo in newRepos {
+//                print(repo)
+//                print(repo)
+//                //self.repos.append(repo)
+//            }   
 
+            self.repos = newRepos
+            self.githubTableView.reloadData()
+            
             MBProgressHUD.hide(for: self.view, animated: true)
             }, error: { (error) -> Void in
                 print(error)
         })
+    }
+}
+
+extension RepoResultsViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return repos.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell =  githubTableView.dequeueReusableCell(withIdentifier: "githubCell", for: indexPath) as! GithubCell
+        
+        cell.nameLabel.text = repos[indexPath.row].name!
+        cell.forksLabel.text = "\(repos[indexPath.row].forks!)"
+        cell.starsLabel.text = "\(repos[indexPath.row].stars!)"
+        cell.ownerHandleLabel.text = "by " + repos[indexPath.row].ownerHandle!
+        cell.descriptionLabel.text = repos[indexPath.row].descriptionMine!
+        cell.ownerAvatarImageView.setImageWith(URL(string: repos[indexPath.row].ownerAvatarURL!)!)
+        
+        return cell
     }
 }
 

@@ -10,8 +10,8 @@ import Foundation
 import AFNetworking
 
 private let reposUrl = "https://api.github.com/search/repositories"
-private let clientId: String? = nil
-private let clientSecret: String? = nil
+private let clientId: String? = "598d318b8c9abf7ff0e7"
+private let clientSecret: String? = "0fca3a485afff634a16e86f471ee0fb6d9aabe3a"
 
 // Model class that represents a GitHub repository
 class GithubRepo: CustomStringConvertible {
@@ -21,6 +21,7 @@ class GithubRepo: CustomStringConvertible {
     var ownerAvatarURL: String?
     var stars: Int?
     var forks: Int?
+    var descriptionMine: String?
     
     // Initializes a GitHubRepo from a JSON dictionary
     init(jsonResult: NSDictionary) {
@@ -43,6 +44,10 @@ class GithubRepo: CustomStringConvertible {
             if let ownerAvatarURL = owner["avatar_url"] as? String {
                 self.ownerAvatarURL = ownerAvatarURL
             }
+        }
+        
+        if let description = jsonResult["description"] as? String {
+            self.descriptionMine = description
         }
     }
     
